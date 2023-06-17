@@ -8,16 +8,21 @@ import {
 } from 'react-native';
 import bgImg from '../assets/images/bg.png';
 import HomeHamburger from '../assets/images/HomeHamburger.png';
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState, useEffect, useContext } from 'react';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import CountdownBubble from '../components/CountdownBubble';
+import { UserContext } from './UserContext';
 
 SplashScreen.preventAutoHideAsync();
 
 export default function Home({ navigation }) {
+  // const { params } = route;
+  // const userInfo = params?.userInfo
+  const { userInfo } = useContext(UserContext);
+
   const countdownData = {
-    targetDate: '2023-08-23T00:00:00Z',
+    targetDate: userInfo?.weddingDate || new Date(),
   };
 
   const [timeLeft, setTimeLeft] = useState(
@@ -73,17 +78,17 @@ export default function Home({ navigation }) {
           <Image source={HomeHamburger} />
         </TouchableOpacity>
 
-        <Text style={styles.nameF}>Mia</Text>
+        <Text style={styles.nameF}>{userInfo?.name}</Text>
         <Text style={styles.ampersand}>&</Text>
-        <Text style={styles.nameM}>Mark</Text>
+        <Text style={styles.nameM}>{userInfo?.fianceName}</Text>
 
         <Text style={styles.introToCountdown}>Are getting married in</Text>
 
         <View style={styles.countdownBubbles}>
-          <CountdownBubble timeValue={timeLeft.months} timeUnit={'months'} />
+          <CountdownBubble timeValue={22} timeUnit={'months'} />
 
-          <CountdownBubble timeValue={timeLeft.days} timeUnit={'days'} />
-          <CountdownBubble timeValue={timeLeft.hours} timeUnit={'hours'} />
+          <CountdownBubble timeValue={3} timeUnit={'days'} />
+          <CountdownBubble timeValue={12} timeUnit={'hours'} />
           {/* <CountdownBubble timeValue={timeLeft.minutes} timeUnit={'minutes'} />
           <CountdownBubble timeValue={timeLeft.seconds} timeUnit={'seconds'} /> */}
         </View>

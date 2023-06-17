@@ -1,37 +1,48 @@
-import { StyleSheet, View } from 'react-native';
-import { useCallback } from 'react';
+import {
+  StyleSheet,
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+} from 'react-native';
+import { useCallback, useContext } from 'react';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 
 import LocationContainer from '../components/LocationContainer';
 import SummaryHeader from '../components/SummaryHeader';
+import { CategoryContext } from './CategoryContext';
+import { UserContext } from './UserContext';
 
 SplashScreen.preventAutoHideAsync();
 
 export default function MyWedding({ navigation }) {
-  const location = {
-    locationOne: {
-      title: 'Salon vjenčanica i svečanih haljina',
-      address: 'Otoka, Džemala Bijedića 25/E Sarajevo',
-      openingHour: 8,
-      closingHour: 20,
-      workHoursTime: ' closes 8pm',
-      phoneNumber: '061 143 950',
-      image: require('../assets/images/salon1.jpg'),
-    },
-    locationTwo: {
-      title: 'Atelier Sposa',
-      address: 'Azize Šaćirbegović 80c',
-      openingHour: 11,
-      closingHour: 17,
-      workHoursTime: ' closes 5pm',
-      phoneNumber: '060 30 30 388',
-      image: require('../assets/images/salon2.jpg'),
-    },
-  };
+  // const categories = [
+  //   {
+  //     category: 'Dresses',
+  //     title: 'Salon vjenčanica i svečanih haljina',
+  //     address: 'Otoka, Džemala Bijedića 25/E Sarajevo',
+  //     openingHour: 8,
+  //     closingHour: 20,
+  //     workHoursTime: ' closes 8pm',
+  //     phoneNumber: '061 143 950',
+  //     image: require('../assets/images/salon1.jpg'),
+  //   },
+  //   {
+  //     category: 'Venues',
 
-  const locations = [location.locationOne, location.locationTwo];
+  //     title: 'Restaurant Tavola',
+  //     address: 'Maršala Tita 50',
+  //     openingHour: 8,
+  //     closingHour: 23,
+  //     workHoursTime: ' closes 11pm',
+  //     phoneNumber: '033 222 207',
+  //     image: require('../assets/images/venues1.jpg'),
+  //   },
+  // ];
+
+  const { categories } = useContext(CategoryContext);
+  const { userInfo } = useContext(UserContext);
 
   const [fontsLoaded] = useFonts({
     AbhayaLibre: require('../assets/fonts/AbhayaLibre-Bold.ttf'),
@@ -52,6 +63,10 @@ export default function MyWedding({ navigation }) {
     navigation.navigate('Home');
   };
 
+  const filteredCategories = categories.filter(
+    (category) => category.userIdSelected === userInfo.username
+  );
+
   return (
     <View style={styles.pageContainer} onLayout={onLayoutRootView}>
       <SummaryHeader
@@ -60,19 +75,26 @@ export default function MyWedding({ navigation }) {
         onPressDrawer={() => navigation.openDrawer()}
       />
       <View style={styles.mainBody}>
-        {locations.map((location, index) => (
-          <TouchableOpacity key={index} style={{ width: '100%' }}>
-            <LocationContainer
-              title={location.title}
-              address={location.address}
-              hoursOpened={location.openingHour}
-              hoursClosed={location.closingHour}
-              workHoursTime={location.workHoursTime}
-              phoneNumber={location.phoneNumber}
-              image={location.image}
-            />
-          </TouchableOpacity>
-        ))}
+        <ScrollView style={styles.scrollStyle}>
+          {filteredCategories.map((category) => (
+            <View style={styles.choices} key={category.category}>
+              <View style={styles.mBCategories}>
+                <Text style={styles.mBCategoriesTxt}>{category.category}</Text>
+              </View>
+              <TouchableOpacity style={{ width: '100%' }}>
+                <LocationContainer
+                  title={category.companyName}
+                  address={category.location}
+                  hoursOpened={8}
+                  hoursClosed={17}
+                  workHoursTime={category.workHoursTime}
+                  phoneNumber={category.phoneNumber}
+                  image={category.image}
+                />
+              </TouchableOpacity>
+            </View>
+          ))}
+        </ScrollView>
       </View>
     </View>
   );
@@ -89,5 +111,24 @@ const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'flex-start',
     alignItems: 'center',
+  },
+  scrollStyle: {
+    width: '100%',
+  },
+  choices: {
+    width: '98%',
+    marginBottom: 35,
+  },
+  mBCategories: {
+    width: '90%',
+    marginLeft: 20,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+  },
+  mBCategoriesTxt: {
+    color: '#C49D62',
+    letterSpacing: 4,
+    fontSize: 25,
+    fontFamily: 'AbhayaLibre',
   },
 });

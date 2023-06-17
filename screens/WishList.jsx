@@ -1,8 +1,10 @@
-import { StyleSheet, View, TextInput, Text } from 'react-native';
-import { useCallback, useState } from 'react';
+import { StyleSheet, View, TextInput, Text, Button } from 'react-native';
+import { useCallback, useState, useContext, useEffect } from 'react';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import SummaryHeader from '../components/SummaryHeader';
+import { UserContext } from './UserContext';
+import { updateUserInfo } from './requests';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -10,6 +12,15 @@ export default function WishList({ navigation }) {
   const [text, setText] = useState('');
   const [inputHeight, setInputHeight] = useState(0);
   const [containerHeight, setContainerHeight] = useState(0);
+
+  const { userInfo } = useContext(UserContext);
+
+  useEffect(() => {
+    if (userInfo) {
+      // const { wishList } = userInfo;
+      setText(userInfo.wishList);
+    }
+  }, [userInfo]);
 
   const [fontsLoaded] = useFonts({
     AbhayaLibre: require('../assets/fonts/AbhayaLibre-Bold.ttf'),
@@ -36,13 +47,23 @@ export default function WishList({ navigation }) {
     }
   };
 
+  const handleSaveNotes = () => {
+    if (userInfo) {
+      const updatedUserInfo = {
+        ...userInfo,
+        wishList: text,
+      };
+      updateUserInfo(updatedUserInfo);
+    }
+  };
+
   const onContainerLayout = (event) => {
     const { height } = event.nativeEvent.layout;
     setContainerHeight(height);
   };
 
   const handlePress = () => {
-    navigation.navigate('Home')
+    navigation.navigate('Home');
   };
 
   const lineCount = Math.floor(containerHeight / 10);
@@ -50,9 +71,20 @@ export default function WishList({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <SummaryHeader title={'WISH LIST'} onPress={handlePress} onPressDrawer={() => navigation.openDrawer()}/>
+      <SummaryHeader
+        title={'WISH LIST'}
+        onPress={handlePress}
+        onPressDrawer={() => navigation.openDrawer()}
+      />
       <View style={styles.notesBlock} onLayout={onContainerLayout}>
-        <Text style={styles.notesHeader}>Notes</Text>
+        <View style={styles.notesLayout}>
+          <Text style={styles.notesHeader}>Notes</Text>
+          <Button
+            title="Save"
+            onPress={handleSaveNotes}
+            color="rgba(196, 157, 98, 0.6)"
+          />
+        </View>
         {lines.map((line) => (
           <View
             key={line}
@@ -89,11 +121,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  notesLayout: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
+    width: '90%',
+    marginTop: 30,
+  },
   notesHeader: {
     fontFamily: 'AbhayaLibre',
     fontSize: 28,
     color: 'white',
-    marginTop: 30,
   },
   notesBlock: {
     width: '85%',

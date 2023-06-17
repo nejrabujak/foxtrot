@@ -29,10 +29,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff3c",
   },
   text: {
-    fontSize: 16,
-    lineHeight: 21,
-    fontWeight: 'bold',
-    letterSpacing: 0.25,
+    fontSize: 30,
+    letterSpacing: 0.35,
     color: 'white',
     fontFamily: 'AbhayaLibre'
   },
